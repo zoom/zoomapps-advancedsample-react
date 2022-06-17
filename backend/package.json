@@ -1,0 +1,34 @@
+{
+  "name": "za-reference-node",
+  "version": "0.1.0",
+  "description": "Zoom Reference App built on NodeJS & Express",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "start": "node --inspect=0.0.0.0 server.js",
+    "start:dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "base64url": "^3.0.1",
+    "connect-redis": "^5.1.0",
+    "dotenv": "^8.2.0",
+    "dotenv-expand": "^5.1.0",
+    "express": "^4.17.2",
+    "express-session": "^1.17.1",
+    "http-proxy-middleware": "^1.0.6",
+    "jwt-decode": "^3.1.2",
+    "morgan": "^1.10.0",
+    "pug": "^3.0.0",
+    "react-router-dom": "^5.2.0",
+    "redis": "^3.0.2",
+    "ws": "^7.4.4"
+  },
+  "devDependencies": {
+    "eslint": "^7.17.0",
+    "eslint-config-prettier": "^7.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.2.1"
+  }
+}
