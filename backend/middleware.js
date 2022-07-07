@@ -14,7 +14,7 @@ module.exports = {
     const { host } = new URL(publicUrl)
     res.setHeader(
       'Content-Security-Policy',
-      `default-src *; style-src 'self' 'unsafe-inline'; script-src * 'self' 'https://appssdk.zoom.us' 'unsafe-inline'; connect-src * 'self' wss://${host}/sockjs-node; img-src 'self' data: https://images.unsplash.com; base-uri 'self'; form-action 'self';`
+      `default-src *; style-src 'self' 'unsafe-inline'; script-src * 'self' https://appssdk.zoom.us 'unsafe-inline'; connect-src * 'self' wss://${host}/sockjs-node; img-src 'self' data: https://images.unsplash.com; base-uri 'self'; form-action 'self';`
     )
     res.setHeader('Referrer-Policy', 'same-origin')
     res.setHeader('X-Frame-Option', 'same-origin')
@@ -46,10 +46,13 @@ module.exports = {
         const user = await store.getUser(req.session.user)
         req.thirdPartyAccessToken = user.thirdPartyAccessToken
         return next()
-
-        } catch (error) {
-          return next(new Error('Error getting app user from session.  The user may have added from In-Client OAuth'))
-        }
+      } catch (error) {
+        return next(
+          new Error(
+            'Error getting app user from session.  The user may have added from In-Client OAuth'
+          )
+        )
+      }
     } else {
       next(new Error('Unkown or missing session'))
     }

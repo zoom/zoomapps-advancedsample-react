@@ -144,7 +144,7 @@ module.exports = {
       console.log('3b. Code verifier generated and saved:', codeVerifier)
 
       // 3c. Generate a code challenge to send with this
-      const codeChallenge = codeVerifier
+      const codeChallenge = zoomHelpers.generateCodeChallenge(codeVerifier)
       console.log('3c. Code challenge generated and saved:', codeChallenge)
 
       // 3d. Set domain
@@ -263,6 +263,7 @@ module.exports = {
           return res.data
         })
         .catch((err) => {
+          console.error(err)
           throw new Error('auth0 access token request failed')
         })
 

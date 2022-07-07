@@ -1,0 +1,31 @@
+#api-scrollview-input {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-radius: .25rem;
+  border: 1px solid #212529;
+  padding: 3px;
+  margin-left: 1px;
+}
+
+.api-scrollview {
+  margin-top: 10px;
+  margin-bottom: 0px;
+}
+
+.api-buttons-list {
+  display: block;
+  width: 300px;
+  height: 250px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.api-button {
+  min-width: 100%;
+  max-height: 40px;
+}
+
+.hr-scroll-border {
+  width: 300px;
+  margin-top: 2px;
+}

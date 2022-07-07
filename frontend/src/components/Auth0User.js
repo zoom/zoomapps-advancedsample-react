@@ -10,23 +10,30 @@ function Auth0User(props) {
   const [isLoadingAuth0, setIsLoadingAuth0] = useState(true);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  useEffect(() => {
-    async function getUserProfile() {
-      const userDataResponse = await fetch(
-        `${process.env.REACT_APP_PUBLIC_ROOT}/api/auth0/proxy/userinfo`
-      );
+  const isMissingAuthVariables =
+    !process.env.REACT_APP_AUTH0_CLIENT_ID ||
+    !process.env.REACT_APP_AUTH0_ISSUER_BASE_URL ||
+    !process.env.REACT_APP_AUTH0_CLIENT_SECRET;
 
-      if (userDataResponse.ok && userDataResponse.status === 200) {
-        const userData = await userDataResponse.json();
-        setThirdPartyUser(userData);
-      } else {
-        console.log(userDataResponse)
-        console.log('Request to Auth0 API has failed ^, likely because no Auth0 access token exists for this user. You must click Login to authenticate to 3rd party')
+    useEffect(() => {
+      if (!isMissingAuthVariables) {
+        async function getUserProfile() {
+          const userDataResponse = await fetch(
+            `${process.env.REACT_APP_PUBLIC_ROOT}/api/auth0/proxy/userinfo`
+          );
+
+          if (userDataResponse.ok && userDataResponse.status === 200) {
+            const userData = await userDataResponse.json();
+            setThirdPartyUser(userData);
+          } else {
+            console.log(userDataResponse)
+            console.log('Request to Auth0 API has failed ^, likely because no Auth0 access token exists for this user. You must click Login to authenticate to 3rd party')
+          }
+          setIsLoadingAuth0(false);
+        }
+        getUserProfile();
       }
-      setIsLoadingAuth0(false);
-    }
-    getUserProfile();
-  }, [props.user]);
+    }, [props.user, isMissingAuthVariables]);
 
   const thirdPartyInstall = async () => {
     setIsLoggingIn(true);
@@ -50,15 +57,10 @@ function Auth0User(props) {
       });
   }, []);
 
-  const isMissingAuthVariables =
-    !process.env.REACT_APP_AUTH0_CLIENT_ID ||
-    !process.env.REACT_APP_AUTH0_ISSUER_BASE_URL ||
-    !process.env.REACT_APP_AUTH0_CLIENT_SECRET;
-
   return (
     <div>
       <pre>
-        {isLoadingAuth0 ? (
+        {isLoadingAuth0 && !isMissingAuthVariables ? (
           <Spinner animation="border" role="status">
             <span className="visually-hidden">Loading...</span>
           </Spinner>

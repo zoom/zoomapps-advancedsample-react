@@ -3,6 +3,7 @@ import "./Header.css";
 
 function Header(props) {
   const navLinks = props.navLinks;
+
   return (
     <header>
       <ul>
