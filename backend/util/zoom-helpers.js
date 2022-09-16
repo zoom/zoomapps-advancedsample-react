@@ -12,29 +12,29 @@ function decryptZoomAppContext(
 
   // Get iv length (1 byte)
   const ivLength = buf.readUInt8()
-  buf = buf.slice(1)
+  buf = buf.subarray(1)
 
   // Get iv
-  const iv = buf.slice(0, ivLength)
-  buf = buf.slice(ivLength)
+  const iv = buf.subarray(0, ivLength)
+  buf = buf.subarray(ivLength)
 
   // Get aad length (2 bytes)
   const aadLength = buf.readUInt16LE()
-  buf = buf.slice(2)
+  buf = buf.subarray(2)
 
   // Get aad
-  const aad = buf.slice(0, aadLength)
-  buf = buf.slice(aadLength)
+  const aad = buf.subarray(0, aadLength)
+  buf = buf.subarray(aadLength)
 
   // Get cipher length (4 bytes)
   const cipherLength = buf.readInt32LE()
-  buf = buf.slice(4)
+  buf = buf.subarray(4)
 
   // Get cipherText
-  const cipherText = buf.slice(0, cipherLength)
+  const cipherText = buf.subarray(0, cipherLength)
 
   // Get tag
-  const tag = buf.slice(cipherLength)
+  const tag = buf.subarray(cipherLength)
 
   // AES/GCM decryption
   const decipher = crypto

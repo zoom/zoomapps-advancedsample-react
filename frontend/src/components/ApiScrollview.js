@@ -1,4 +1,4 @@
-import { React, useState, useEffect } from 'react';
+import { React, useState } from 'react';
 import Button from "react-bootstrap/Button";
 import { apis, invokeZoomAppsSdk } from "../apis";
 import "./ApiScrollview.css";
@@ -11,11 +11,11 @@ function ApiScrollview() {
     setApiSearchText(lowerCase);
   };
 
-  const filteredApis = apis?.filter((e) => {
+  const filteredApis = apis?.filter((api) => {
     if (apiSearchText === '') {
-      return e;
+      return api;
     } else {
-      return e.name.toLowerCase().includes(apiSearchText);
+      return api.name.toLowerCase().includes(apiSearchText);
     }
   });
 
