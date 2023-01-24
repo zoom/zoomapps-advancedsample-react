@@ -15,8 +15,8 @@ module.exports = {
 
   beforeDeserialization(ciphertext) {
     const ciphertextBytes = Buffer.from(ciphertext, 'base64')
-    const iv = ciphertextBytes.slice(0, 16)
-    const data = ciphertextBytes.slice(16)
+    const iv = ciphertextBytes.subarray(0, 16)
+    const data = ciphertextBytes.subarray(16)
     const aes = crypto.createDecipheriv(
       'aes-256-cbc',
       process.env.REDIS_ENCRYPTION_KEY,

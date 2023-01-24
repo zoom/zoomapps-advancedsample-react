@@ -22,7 +22,8 @@ Requirements:
 Please see the `.env.example` file in the repository.
 
 - Create a `.env` file by copying the example and filling in the values
-  - Lines starting with a '$' are terminal commands; you'll need the openssl program.  Run the command in your terminal and capture the output
+  - If you are in development, use the Client ID and Client secret under `Development`
+  - Lines starting with a '$' are terminal commands; you'll need the openssl program.  Run the command in your terminal and capture the output, or you can use what those values are currently set at for now.
   - Note that the three 'AUTH0' - prefixed fields are optional - see instructions for the Third Party OAuth below.  Leaving out any of these three values will disable this demonstration feature.
 
 ### Start your Ngrok (reverse proxy)
@@ -69,14 +70,49 @@ Follow these instructions for the "Development" section
 
 #### Information
 
-- Please fill out this information accurately, and keep in mind that it will be visible/published to users in production applications. This content will be thoroughly reviewed by the Zoom Apps review team prior to approval of the application.
+- Please fill out the developer contact name and developer contact email fields to test the application locally. In order to submit the application for review, you will need to fill out the rest of the fields. 
 
 #### Features
 
-- Under `Zoom App SDK` click **Add APIs** and add all APIs and events available.
+- Under `Zoom App SDK` click **Add APIs**
+  - For the purposes of this app, please add the following APIs and events:
+    - `allowParticipantToRecord`
+    - `authorize`
+    - `cloudRecording`
+    - `connect`
+    - `expandApp`
+    - `getMeetingContext`
+    - `getMeetingJoinUrl`
+    - `getMeetingParticipants`
+    - `getMeetingUUID`
+    - `getRecordingContext`
+    - `getRunningContext`
+    - `getSupportedjsApis`
+    - `getUserContext`
+    - `listCameras`
+    - `onActiveSpeakerChange`
+    - `onAuthorized`
+    - `onConnect`
+    - `onMeeting`
+    - `onMessage`
+    - `onMyUserContextChange`
+    - `onSendAppInvitation`
+    - `onShareApp`
+    - `openUrl`
+    - `postMessage`
+    - `promptAuthorize`
+    - `removeVirtualBackground`
+    - `sendAppInvitation`
+    - `shareApp`
+    - `showAppInvitationDialog`
+    - `sendAppInvitationToMeetingOwner`
+    - `sendAppInvitationToAllParticipants`
+    - `setVideoMirrorEffect`
+    - `setVirtualBackground`
+    - `showNotification`
   - Users will be asked to consent to these scopes during the add flow before being allowed to use the Zoom App
   - Important: The added or checked items must at least include those in the "capabilities" list in the call to zoomSdk.config in the embedded browser, eg frontend/src/App.js
-- Select any additional features you would like to enable, eg Guest mode, In-client OAuth, Collaborate mode, etc.
+- Select any additional features you would like to enable, eg Guest mode, In-client OAuth, Collaborate mode, etc. For this app, have Guest mode, In-client OAuth, and Collaborate Mode turned on.
   - Important: For legacy reasons, Guest mode is NOT enabled by default. Please make sure your app supports this - particularly relevant for applications live prior to June 2022. Newer applications will want to take advantage of these features from the start
 
 
@@ -162,6 +198,7 @@ This Zoom App uses [create-react-app](https://create-react-app.dev/) for the fro
 
 The frontend app is quite simple:
 - It calls a Zoom REST API endpoint for user data via a backend-hosted proxy that adds user access token to the request
+- It imports the Zoom SDK in `index.html` via a script `<script src="https://appssdk.zoom.us/sdk.min.js"></script>`
 - Offers an example Zoom App SDK configuration to get the running context of the Zoom App.
 - Includes examples of Zoom App SDK method invocations
 

@@ -1,7 +1,7 @@
 /* globals zoomSdk */
 import { useLocation, useHistory } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
-import { apis, invokeZoomAppsSdk } from "./apis";
+import { apis } from "./apis";
 import { Authorization } from "./components/Authorization";
 import ApiScrollview from "./components/ApiScrollview";
 import "./App.css";
@@ -55,7 +55,6 @@ function App() {
             "onMyUserContextChange",
             "sendAppInvitationToAllParticipants",
             "sendAppInvitation",
-            "authorize",
           ],
           version: "0.16.0",
         });
