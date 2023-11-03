@@ -241,4 +241,4 @@ The third party authentication example is optional - if you skip these steps, pl
 
 ## What do I do next?
 
-Start building your app! You can check out the [Zoom Apps developer docs](https://marketplace.zoom.us/docs/beta-docs/zoom-apps/overview#overview-of-zoom-apps) for more information on the JS SDK. You can also explore the [Zoom REST API](https://devepmp.zoomdev.us/docs/api-reference/introduction) or use the third party OAuth to call a different API.
+Start building your app! You can check out the [Zoom Apps developer docs](https://developers.zoom.us/docs/zoom-apps/) for more information on the JS SDK. You can also explore the [Zoom REST API](https://developers.zoom.us/docs/api/) or use the third party OAuth to call a different API.
