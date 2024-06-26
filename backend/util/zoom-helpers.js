@@ -37,12 +37,14 @@ function decryptZoomAppContext(
   const tag = buf.subarray(cipherLength)
 
   // AES/GCM decryption
+
   const decipher = crypto
     .createDecipheriv(
       'aes-256-gcm',
       // hash the secret key first
       crypto.createHash('sha256').update(secretKey).digest(),
-      iv
+      iv,
+      { authTagLength: 16 }
     )
     .setAAD(aad)
     .setAuthTag(tag)
