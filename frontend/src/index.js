@@ -1,21 +1,22 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Router } from "react-router-dom";
+import { HashRouter } from "react-router-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { createHashHistory } from "history";
-
-const history = createHashHistory();
 
 ReactDOM.render(
   <React.StrictMode>
-    <Router history={history}>
+    <HashRouter>
       <App />
-    </Router>
+    </HashRouter>
   </React.StrictMode>,
   document.getElementById("root")
 );
+
+// If you prefer BrowserRouter instead of HashRouter, use this:
+// import { BrowserRouter } from 'react-router-dom';
+// And replace <HashRouter> with <BrowserRouter>
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

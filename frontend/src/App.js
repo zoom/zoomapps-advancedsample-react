@@ -1,5 +1,5 @@
 /* globals zoomSdk */
-import { useLocation, useHistory } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import { apis } from "./apis";
 import { Authorization } from "./components/Authorization";
@@ -10,7 +10,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 let once = 0; // to prevent increasing number of event listeners being added
 
 function App() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
@@ -118,14 +118,14 @@ function App() {
         console.log(
           "Message received " + receiver + " " + reason + ": " + content
         );
-        history.push({ pathname: content });
+        navigate({ pathname: content });
       };
       if (once === 0) {
         zoomSdk.addEventListener("onMessage", on_message_handler);
         once = 1;
       }
     },
-    [history]
+    [navigate]
   );
 
   useEffect(() => {
@@ -192,13 +192,15 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Hello{user ? ` ${user.first_name} ${user.last_name}` : " Zoom Apps user"}!</h1>
+      <h1>
+        Hello
+        {user ? ` ${user.first_name} ${user.last_name}` : " Zoom Apps user"}!
+      </h1>
       <p>{`User Context Status: ${userContextStatus}`}</p>
       <p>
-        {runningContext ?
-          `Running Context: ${runningContext}` :
-          "Configuring Zoom JavaScript SDK..."
-        }
+        {runningContext
+          ? `Running Context: ${runningContext}`
+          : "Configuring Zoom JavaScript SDK..."}
       </p>
 
       <ApiScrollview />
@@ -209,7 +211,6 @@ function App() {
         user={user}
         userContextStatus={userContextStatus}
       />
-
     </div>
   );
 }

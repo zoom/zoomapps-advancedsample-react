@@ -1,6 +1,6 @@
 /* globals zoomSdk */
 import React, { useEffect, useState } from "react";
-import { Route, Redirect, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Auth0User from "./Auth0User";
 import Header from "./Header";
@@ -92,7 +92,7 @@ export const Authorization = (props) => {
         },
       }).then(() => {
         console.log(
-          "4. Backend returns succesfully after exchanging code for auth token.  Go ahead and update the UI"
+          "4. Backend returns successfully after exchanging code for auth token.  Go ahead and update the UI"
         );
         setUserAuthorized(true);
 
@@ -120,7 +120,6 @@ export const Authorization = (props) => {
           "Request to Zoom REST API has failed ^, likely because no Zoom access token exists for this user. You must use the authorize API to get an access token"
         );
         setShowInClientOAuthPrompt(true);
-        // setError("There was an error getting your user information");
       }
     }
 
@@ -139,36 +138,36 @@ export const Authorization = (props) => {
     <>
       <p>You are on this route: {location.pathname}</p>
 
-      {!inGuestMode && <Button
-        variant="primary"
-        onClick={inGuestMode ? promptAuthorize : authorize}
-      >
-        {inGuestMode ? "promptAuthorize" : "authorize"}
-      </Button>}
+      {!inGuestMode && (
+        <Button
+          variant="primary"
+          onClick={inGuestMode ? promptAuthorize : authorize}
+        >
+          {inGuestMode ? "promptAuthorize" : "authorize"}
+        </Button>
+      )}
 
       <div>
         <Header
           navLinks={{ userInfo: "User Info", iframe: "IFrame", image: "Image" }}
         />
-        <Route path="" exact>
-          <Redirect to="/userinfo" />
-        </Route>
-        <Route path="/userinfo">
-
-          <UserInfo
-            user={user}
-            onClick={inGuestMode ? promptAuthorize : authorize}
-            showGuestModePrompt={inGuestMode}
-            userContextStatus={userContextStatus}
-            showInClientOAuthPrompt={showInClientOAuthPrompt}
+        <Routes>
+          <Route path="/" element={<Navigate to="/userinfo" replace />} />
+          <Route
+            path="/userinfo"
+            element={
+              <UserInfo
+                user={user}
+                onClick={inGuestMode ? promptAuthorize : authorize}
+                showGuestModePrompt={inGuestMode}
+                userContextStatus={userContextStatus}
+                showInClientOAuthPrompt={showInClientOAuthPrompt}
+              />
+            }
           />
-        </Route>
-        <Route path="/image">
-          <Image />
-        </Route>
-        <Route path="/iframe">
-          <IFrame />
-        </Route>
+          <Route path="/image" element={<Image />} />
+          <Route path="/iframe" element={<IFrame />} />
+        </Routes>
       </div>
       <Header navLinks={{ auth0Data: "Auth0 User Data" }} />
       <Auth0User user={user} />
