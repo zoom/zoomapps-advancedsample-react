@@ -40,6 +40,10 @@
       "last 1 safari version"
     ]
   },
+  "overrides": {
+    "@babel/runtime": "^7.27.0",
+    "@babel/runtime-corejs3": "^7.27.0"
+  },
   "devDependencies": {
     "react-app-rewired": "^2.1.8",
     "react-scripts": "5.0.1"
