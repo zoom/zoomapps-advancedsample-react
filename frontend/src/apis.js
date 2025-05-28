@@ -3,7 +3,6 @@
 const invokeZoomAppsSdk = (api) => () => {
   const { name, buttonName = '', options = null } = api
   const zoomAppsSdkApi = zoomSdk[name].bind(zoomSdk)
-  console.log(zoomAppsSdkApi)
 
   zoomAppsSdkApi(options)
     .then((clientResponse) => {

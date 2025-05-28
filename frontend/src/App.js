@@ -188,7 +188,6 @@ function App() {
     )
   }
 
-  // remove me once JS-SDK support it
   const handleStartRTMS = async () => {
     try {
       const res = await zoomSdk.callZoomApi('startRTMS')
@@ -198,7 +197,6 @@ function App() {
     }
   }
 
-  // remove me once JS-SDK support it
   const handleStopRTMS = async () => {
     try {
       const res = await zoomSdk.callZoomApi('stopRTMS')

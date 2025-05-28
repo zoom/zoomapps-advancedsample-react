@@ -24,7 +24,6 @@ function ApiScrollview({ onStartRTMS, onStopRTMS }) {
       <input placeholder='Search for an API' onChange={searchHandler} label='Search' id='api-scrollview-input' />
 
       <div className='api-buttons-list'>
-        {/* Move these 2 buttons inside filteredApis list once JS SDK support them */}
         <Button className='api-button' onClick={onStartRTMS}>
           startRTMS
         </Button>
