@@ -1,44 +1,44 @@
-import { React, useState } from 'react';
-import Button from "react-bootstrap/Button";
-import { apis, invokeZoomAppsSdk } from "../apis";
-import "./ApiScrollview.css";
+import { React, useState } from 'react'
+import Button from 'react-bootstrap/Button'
+import { apis, invokeZoomAppsSdk } from '../apis'
+import './ApiScrollview.css'
 
-function ApiScrollview() {
-  const [apiSearchText, setApiSearchText] = useState("");
+function ApiScrollview({ onStartRTMS, onStopRTMS }) {
+  const [apiSearchText, setApiSearchText] = useState('')
 
   const searchHandler = (e) => {
-    let lowerCase = e.target.value.toLowerCase();
-    setApiSearchText(lowerCase);
-  };
+    let lowerCase = e.target.value.toLowerCase()
+    setApiSearchText(lowerCase)
+  }
 
   const filteredApis = apis?.filter((api) => {
     if (apiSearchText === '') {
-      return api;
+      return api
     } else {
-      return api.name.toLowerCase().includes(apiSearchText);
+      return api.name.toLowerCase().includes(apiSearchText)
     }
-  });
+  })
 
   return (
-    <div className="api-scrollview">
-      <input placeholder="Search for an API"
-        onChange={searchHandler}
-        label="Search"
-        id="api-scrollview-input"
-      />
+    <div className='api-scrollview'>
+      <input placeholder='Search for an API' onChange={searchHandler} label='Search' id='api-scrollview-input' />
 
-      <div className="api-buttons-list">
-        {filteredApis?.map(api =>
-          <Button onClick={invokeZoomAppsSdk(api)}
-            className="api-button"
-            key={api.buttonName ||
-              api.name} > {api.buttonName || api.name}
+      <div className='api-buttons-list'>
+        <Button className='api-button' onClick={onStartRTMS}>
+          startRTMS
+        </Button>
+        <Button className='api-button' onClick={onStopRTMS}>
+          stopRTMS
+        </Button>
+
+        {filteredApis?.map((api) => (
+          <Button onClick={invokeZoomAppsSdk(api)} className='api-button' key={api.buttonName || api.name}>
+            {' '}
+            {api.buttonName || api.name}
           </Button>
-        )}
-
+        ))}
       </div>
-      <hr className="hr-scroll-border"></hr>
-
+      <hr className='hr-scroll-border'></hr>
     </div>
   )
 }

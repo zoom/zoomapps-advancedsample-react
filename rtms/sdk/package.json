@@ -1,0 +1,11 @@
+{
+  "name": "rtms-sdk",
+  "version": "1.0.0",
+  "description": "A sample app to test rtms-sdk",
+  "main": "index.js",
+  "scripts": {
+    "fetch": "npm --prefix node_modules/@zoom/rtms run fetch",
+    "start": "node --env-file=.env index.js"
+  },
+  "license": "MIT"
+}

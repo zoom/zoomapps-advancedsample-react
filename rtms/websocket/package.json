@@ -1,0 +1,21 @@
+{
+  "name": "rtms-websocket",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "index.js",
+    "start:dev": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "ws": "^8.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

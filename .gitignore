@@ -3,4 +3,12 @@ node_modules
 
 .DS_Store
 
+
 data
+
+logs
+
+
+rtms/sdk/id_*
+
+rtms/sdk/Docker.local
