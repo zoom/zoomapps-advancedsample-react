@@ -1,30 +1,12 @@
-const crypto = require('crypto')
 const WebSocket = require('ws')
 const { generateSignature } = require('./helper')
-const { convertAudioDataToWav } = require('../../utils/audio')
-const { convertTranscriptData } = require('../../utils/transcript')
-const { convertVideoDataToMp4 } = require('../../utils/video')
-
-/**
- * App build flow credentials from https://marketplace.zoom.us/
- * Add them to .env file
- */
-// OAuth Client ID
-const CLIENT_ID = process.env.ZM_RTMS_CLIENT
-// OAuth Client Secret
-const CLIENT_SECRET = process.env.ZM_RTMS_SECRET
-// OAuth Client Secret
-const ZOOM_SECRET_TOKEN = process.env.ZM_RTMS_SECRET
-
-/**
- * Store active WebSocket connections keyed by meeting UUID
- */
-const activeConnections = new Map()
-
-const meetingData = {
-  audio: [],
-  video: [],
-}
+const { CLIENT_ID, CLIENT_SECRET, ZOOM_SECRET_TOKEN } = require('../config/credentials')
+const { activeConnections, videoWriteStreams, meetingData } = require('../config/state')
+const { handleUrlValidation } = require('./handlers')
+const { processAudioData } = require('./audioHandler')
+const { processVideoData } = require('./videoHandler')
+const { processTranscriptData } = require('./transcriptHandler')
+const { handleRtmsStopped } = require('./rtmsHandlers')
 
 /**
  * Express handler for Zoom RTMS webhook events
@@ -49,84 +31,28 @@ function rtmsHandler(req, res) {
 }
 
 /**
- * Handles Zoom's URL validation challenge
- */
-function handleUrlValidation(payload, res) {
-  if (!payload?.plainToken) return res.sendStatus(400)
-
-  const encryptedToken = crypto.createHmac('sha256', ZOOM_SECRET_TOKEN).update(payload.plainToken).digest('hex')
-
-  console.log('Responding to Zoom URL validation challenge')
-  return res.json({
-    plainToken: payload.plainToken,
-    encryptedToken,
-  })
-}
-
-/**
  * Handles RTMS start event by connecting to signaling WebSocket
  */
 function handleRtmsStarted({ meeting_uuid, rtms_stream_id, server_urls }) {
   console.log('RTMS started for meeting:', meeting_uuid)
-  connectToSignalingWebSocket(meeting_uuid, rtms_stream_id, server_urls)
-}
 
-/**
- * Handles RTMS stop event
- */
-async function handleRtmsStopped(payload) {
-  const meetingUUID = payload.meeting_uuid
-  const audioBuffer = Buffer.concat(meetingData.audio) // Combine all the audio data into one buffer
+  const ws = new WebSocket(server_urls)
 
-  console.log('RTMS stopped for meeting:', meetingUUID)
-
-  if (meetingData.audio.length) {
-    await convertAudioDataToWav(audioBuffer, payload)
-    meetingData.audio = []
+  if (!activeConnections.has(meeting_uuid)) {
+    activeConnections.set(meeting_uuid, {})
   }
-
-  if (meetingData.video.length) {
-    const fullVideoBuffer = Buffer.concat(meetingData.video)
-    const timestampFormatted = new Date().toISOString().replace(/[:.]/g, '-')
-    await convertVideoDataToMp4(fullVideoBuffer, payload, timestampFormatted)
-    meetingData.video = []
-  }
-
-  const connections = activeConnections.get(meetingUUID)
-  if (!connections) return
-
-  Object.values(connections).forEach((socket) => {
-    if (socket && typeof socket.close === 'function') {
-      socket.close()
-    }
-  })
-
-  // cleaning up all WebSocket connections
-  activeConnections.delete(meetingUUID)
-  console.log(`Closed all WebSocket connections for meeting ${meetingUUID}`)
-}
-
-/**
- * Connects to Zoom signaling WebSocket server
- */
-function connectToSignalingWebSocket(meetingUUID, streamId, serverUrl) {
-  const ws = new WebSocket(serverUrl)
-
-  if (!activeConnections.has(meetingUUID)) {
-    activeConnections.set(meetingUUID, {})
-  }
-  activeConnections.get(meetingUUID).signaling = ws
+  activeConnections.get(meeting_uuid).signaling = ws
 
   ws.on('open', () => {
-    console.log('Connected to signaling server for meeting:', meetingUUID)
+    console.log('Connected to signaling server for meeting:', meeting_uuid)
 
     const handshake = {
       msg_type: 1, // SIGNALING_HAND_SHAKE_REQ
       protocol_version: 1,
-      meeting_uuid: meetingUUID,
-      rtms_stream_id: streamId,
+      meeting_uuid: meeting_uuid,
+      rtms_stream_id: rtms_stream_id,
       sequence: Math.floor(Math.random() * 1e9),
-      signature: generateSignature(meetingUUID, streamId, CLIENT_ID, CLIENT_SECRET),
+      signature: generateSignature(meeting_uuid, rtms_stream_id, CLIENT_ID, CLIENT_SECRET),
     }
 
     ws.send(JSON.stringify(handshake))
@@ -145,37 +71,71 @@ function connectToSignalingWebSocket(meetingUUID, streamId, serverUrl) {
       return
     }
 
-    handleSignalingMessage(msg, meetingUUID, streamId, ws)
+    // Handle signaling messages
+    switch (msg.msg_type) {
+      case 2: // SIGNALING_HAND_SHAKE_RESP
+        if (msg.status_code === 0 && msg.media_server?.server_urls?.all) {
+          connectToMediaWebSocket(msg.media_server.server_urls.all, meeting_uuid, rtms_stream_id, ws)
+        }
+        break
+
+      case 12: // KEEP_ALIVE_REQ
+        ws.send(
+          JSON.stringify({
+            msg_type: 13, // KEEP_ALIVE_RESP
+            timestamp: msg.timestamp,
+          })
+        )
+        console.log('Responded to signaling KEEP_ALIVE_REQ')
+        break
+    }
   })
 
   ws.on('error', (err) => console.error('Signaling WebSocket error:', err))
   ws.on('close', () => {
     console.log('Signaling WebSocket closed')
-    const conn = activeConnections.get(meetingUUID)
+    const conn = activeConnections.get(meeting_uuid)
     if (conn) delete conn.signaling
   })
 }
 
 /**
- * Handles messages from signaling WebSocket
+ * Handles messages from media WebSocket
  */
-function handleSignalingMessage(msg, meetingUUID, streamId, signalingSocket) {
+function handleMediaMessage(msg, streamId, signalingSocket, mediaSocket, meetingUUID) {
   switch (msg.msg_type) {
-    case 2: // SIGNALING_HAND_SHAKE_RESP
-      // status_code 0 = OK
-      if (msg.status_code === 0 && msg.media_server?.server_urls?.all) {
-        connectToMediaWebSocket(msg.media_server.server_urls.all, meetingUUID, streamId, signalingSocket)
+    case 4: // DATA_HAND_SHAKE_RESP
+      if (msg.status_code === 0) {
+        signalingSocket.send(
+          JSON.stringify({
+            msg_type: 7, // CLIENT_READY_ACK
+            rtms_stream_id: streamId,
+          })
+        )
+        console.log('Media handshake complete, sent CLIENT_READY_ACK')
       }
       break
 
     case 12: // KEEP_ALIVE_REQ
-      signalingSocket.send(
+      mediaSocket.send(
         JSON.stringify({
           msg_type: 13, // KEEP_ALIVE_RESP
           timestamp: msg.timestamp,
         })
       )
-      console.log('Responded to signaling KEEP_ALIVE_REQ')
+      console.log('Responded to media KEEP_ALIVE_REQ')
+      break
+
+    case 14: // MEDIA_DATA_AUDIO
+      processAudioData(msg, meetingData)
+      break
+
+    case 15: // MEDIA_DATA_VIDEO
+      processVideoData(msg, meetingUUID, videoWriteStreams, meetingData)
+      break
+
+    case 17: // MEDIA_DATA_TRANSCRIPT
+      processTranscriptData(msg, meetingUUID)
       break
   }
 }
@@ -221,61 +181,6 @@ function connectToMediaWebSocket(mediaUrl, meetingUUID, streamId, signalingSocke
     const conn = activeConnections.get(meetingUUID)
     if (conn) delete conn.media
   })
-}
-
-/**
- * Handles messages from media WebSocket
- */
-function handleMediaMessage(msg, streamId, signalingSocket, mediaSocket, meetingUUID) {
-  switch (msg.msg_type) {
-    case 4: // DATA_HAND_SHAKE_RESP
-      // status_code 0 = OK
-      if (msg.status_code === 0) {
-        signalingSocket.send(
-          JSON.stringify({
-            msg_type: 7, // CLIENT_READY_ACK
-            rtms_stream_id: streamId,
-          })
-        )
-        console.log('Media handshake complete, sent CLIENT_READY_ACK')
-      }
-      break
-
-    case 12: // KEEP_ALIVE_REQ
-      mediaSocket.send(
-        JSON.stringify({
-          msg_type: 13, // KEEP_ALIVE_RESP
-          timestamp: msg.timestamp,
-        })
-      )
-      console.log('Responded to media KEEP_ALIVE_REQ')
-      break
-
-    case 14: // MEDIA_DATA_AUDIO
-      if (msg.content && msg.content.data) {
-        console.log('Received audio chunk')
-        // Decode base64 audio data
-        const audioData = Buffer.from(msg.content.data, 'base64')
-        meetingData.audio.push(audioData)
-      }
-      break
-
-    case 15: // MEDIA_DATA_VIDEO
-      if (msg.content && msg.content.data) {
-        console.log('Received video chunk')
-        const chunk = Buffer.from(msg.content.data, 'base64')
-        meetingData.video.push(chunk)
-      }
-      break
-
-    case 17: // MEDIA_DATA_TRANSCRIPT
-      if (msg.content && msg.content.data) {
-        console.log('Received transcript data')
-        const { user_name, data, timestamp } = msg.content
-        convertTranscriptData(user_name, timestamp / 1000, data, meetingUUID)
-      }
-      break
-  }
 }
 
 module.exports = {

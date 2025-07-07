@@ -67,6 +67,7 @@ services:
       - ./rtms/utils:/home/node/utils
       - ./rtms/websocket/logs:/home/node/app/logs
       - ./rtms/websocket/data:/home/node/app/data
+      - ./frontend/public/data:/home/node/app/frontend-data
 
   rtms-sdk:
     build: ./rtms/sdk/.

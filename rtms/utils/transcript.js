@@ -32,10 +32,17 @@ function isLikelyAbsoluteTimestamp(ts) {
  * @param {string} meetingUUID - The unique identifier of the meeting.
  * @returns {void} This function does not return a value.
  */
-function convertTranscriptData(userName, timestamp, data, meetingUUID) {
-  console.log('Writing transcript line...')
+function convertTranscriptData(userName, timestamp, data, meetingUUID, rawData) {
+  console.log('==> Writing transcript line...')
+
   // Ensure transcript folder exists
   const dataFolder = path.join(__dirname, '../app/data/transcript')
+
+  const frontendDataFolder = path.join(__dirname, '../app/frontend-data/transcript')
+
+  if (!fs.existsSync(frontendDataFolder)) {
+    fs.mkdirSync(frontendDataFolder, { recursive: true })
+  }
 
   if (!fs.existsSync(dataFolder)) {
     fs.mkdirSync(dataFolder, { recursive: true })
@@ -46,6 +53,10 @@ function convertTranscriptData(userName, timestamp, data, meetingUUID) {
   const today = new Date().toISOString().split('T')[0]
   const fileName = `${today}_${safeMeetingId}.txt`
   const txtFilePath = path.join(dataFolder, fileName)
+
+  const frontendTxtFilePath = path.join(frontendDataFolder, 'transcript.txt')
+
+  const frontendRawDataPath = path.join(frontendDataFolder, 'raw.txt')
 
   // Determine correct timestamp
   let actualTime
@@ -62,8 +73,26 @@ function convertTranscriptData(userName, timestamp, data, meetingUUID) {
     actualTime = new Date(sessionStartTime + timestamp)
   }
   const readableTime = actualTime.toISOString()
-  const txtLine = `[${readableTime}] ${userName}: ${data}\n`
+  const txtLine = `[${readableTime}] ${userName}: ${data}\n\n`
   fs.appendFileSync(txtFilePath, txtLine)
+  fs.appendFileSync(frontendTxtFilePath, txtLine)
+
+  // Format raw data to look like Buffer string
+  const rawBuffer = Buffer.from(rawData, 'base64')
+  const hexString = rawBuffer.toString('hex')
+  const bytes = hexString.match(/.{1,2}/g) || []
+  const formattedBytes = bytes.map((byte) => byte.padStart(2, '0'))
+
+  let bufferString = '<Buffer '
+  bufferString += formattedBytes.slice(0, 50).join(' ')
+  if (formattedBytes.length > 50) {
+    bufferString += ` ... ${formattedBytes.length - 50} more bytes>`
+  } else {
+    bufferString += '>'
+  }
+
+  const rawLine = `${bufferString}\n`
+  fs.appendFileSync(frontendRawDataPath, rawLine)
 }
 
 module.exports = { convertTranscriptData }
