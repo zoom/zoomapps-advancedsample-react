@@ -260,11 +260,15 @@ module.exports = {
 
       // 2. Verify App Context has not expired
       if (!decryptedAppContext.exp || decryptedAppContext.exp < Date.now()) {
-        throw new Error("x-zoom-app-context header is expired")
+        throw new Error('x-zoom-app-context header is expired')
       }
 
       console.log('1. Decrypted Zoom App Context:', decryptedAppContext, '\n')
-      console.log('2. Verifying Zoom App Context is not expired: ', new Date(decryptedAppContext.exp).toString(), '\n')
+      console.log(
+        '2. Verifying Zoom App Context is not expired: ',
+        new Date(decryptedAppContext.exp).toString(),
+        '\n'
+      )
       console.log('3. Persisting user id and meetingUUIDa', '\n')
 
       // 3. Persist user id and meetingUUID

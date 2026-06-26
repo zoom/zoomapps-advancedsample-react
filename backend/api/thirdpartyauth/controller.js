@@ -167,9 +167,8 @@ module.exports = {
       }
 
       console.log('3f. Params for request:', params)
-      const auth0AuthRequestParams = zoomHelpers.createRequestParamString(
-        params
-      )
+      const auth0AuthRequestParams =
+        zoomHelpers.createRequestParamString(params)
 
       // 3g. Concatenate above
       const redirectUrl =

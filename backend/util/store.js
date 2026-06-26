@@ -35,9 +35,9 @@ module.exports = {
   upsertUser: function (zoomUserId, accessToken, refreshToken, expired_at) {
     const isValidUser = Boolean(
       typeof zoomUserId === 'string' &&
-        typeof accessToken === 'string' &&
-        typeof refreshToken === 'string' &&
-        typeof expired_at === 'number'
+      typeof accessToken === 'string' &&
+      typeof refreshToken === 'string' &&
+      typeof expired_at === 'number'
     )
 
     if (!isValidUser) {

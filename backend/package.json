@@ -6,7 +6,9 @@
   "license": "MIT",
   "scripts": {
     "start": "node --inspect=0.0.0.0 server.js",
-    "start:dev": "nodemon server.js"
+    "start:dev": "nodemon server.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "axios": "^1.12.0",
@@ -28,11 +30,13 @@
     "on-headers": "1.1.0"
   },
   "devDependencies": {
-    "eslint": "^7.17.0",
-    "eslint-config-prettier": "^7.1.0",
-    "eslint-plugin-prettier": "^3.3.1",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.5.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.6",
+    "globals": "^17.7.0",
     "nodemon": "^3.1.9",
-    "prettier": "^2.2.1",
+    "prettier": "^3.0.0",
     "redis": "^3.0.2"
   }
 }

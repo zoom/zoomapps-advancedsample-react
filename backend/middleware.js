@@ -46,7 +46,7 @@ module.exports = {
         const user = await store.getUser(req.session.user)
         req.thirdPartyAccessToken = user.thirdPartyAccessToken
         return next()
-      } catch (error) {
+      } catch {
         return next(
           new Error(
             'Error getting app user from session.  The user may have added from In-Client OAuth'

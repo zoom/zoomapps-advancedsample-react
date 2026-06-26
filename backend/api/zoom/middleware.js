@@ -47,8 +47,7 @@ const refreshToken = async (req, res, next) => {
         refreshToken: tokenResponse.data.refresh_token,
         expired_at: Date.now() + tokenResponse.data.expires_in * 1000,
       })
-
-    } catch (error) {
+    } catch {
       return next(new Error('Error refreshing user token.'))
     }
   }
